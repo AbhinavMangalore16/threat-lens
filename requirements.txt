@@ -3,8 +3,8 @@ numpy
 pandas 
 flask 
 streamlit
-pymongo
 certifi
-
+pymongo[srv]==3.6
+pymongo
 
 -e .
