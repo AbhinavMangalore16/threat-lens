@@ -4,3 +4,7 @@ pandas
 flask 
 streamlit
 pymongo
+certifi
+
+
+-e .
