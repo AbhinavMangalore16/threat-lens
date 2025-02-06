@@ -51,12 +51,11 @@ class Extract():
             return len(self.records)
         except Exception as e:
             raise ThreatLensException(e,sys)
-if __name__ == "__main__":
-    File_path = "data/raw/phishing.csv"
-    Database = "ThreatLens"
-    Collection = "PhishingNetworkData"
 
-    extract = Extract()
-    data = extract.data_conversion(file_path=File_path)
-    recs = extract.mongo_db_push(database=Database, records=data, collection=Collection)
-    logger.info(f"Number of records pushed: {recs}")
+File_path = "data/raw/phishing.csv"
+Database = "ThreatLens"
+Collection = "PhishingNetworkData"
+extract = Extract()
+data = extract.data_conversion(file_path=File_path)
+recs = extract.mongo_db_push(database=Database, records=data, collection=Collection)
+logger.info(f"Number of records pushed: {recs}")
