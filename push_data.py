@@ -48,6 +48,7 @@ class Extract():
             self.collection = self.database[collection]
             self.collection.insert_many(self.records)
             logger.info(f"Data pushed to {collection} collection in {database} database")
+            print(f"Data pushed to {collection} collection in {database} database")
             return len(self.records)
         except Exception as e:
             raise ThreatLensException(e,sys)
