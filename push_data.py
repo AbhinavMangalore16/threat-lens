@@ -21,7 +21,7 @@ if not MONGO_USERNAME or not MONGO_PASSWORD:
     raise ValueError("MongoDB credentials are not set in the .env file.")
 
 
-uri = f"mongodb+srv://{MONGO_USERNAME}:{MONGO_PASSWORD}@cluster0.ys1q0.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+uri = os.getenv("MONGO_DB_URI")
 
 class Extract():
     def __init__(self):
