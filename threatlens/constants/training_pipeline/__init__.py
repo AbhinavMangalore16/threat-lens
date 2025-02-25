@@ -3,6 +3,10 @@ import sys
 import numpy as np
 import pandas as pd
 
+"""
+====== Data Ingestion constants ======
+
+"""
 
 DATA_INGESTION_COLLECTION = "PhishingNetworkData"
 DATA_INGESTION_DB = "ThreatLens"
@@ -19,3 +23,14 @@ FILE_NAME = "phishing.csv"
 
 TRAIN_FILE_NAME = "train_data.csv"
 TEST_FILE_NAME = "test_data.csv"
+
+"""
+====== Data Validation constants ======
+
+"""
+
+DATA_VALIDATION_DIR_NAME = "data_validation"
+DATA_VALIDATION_VALID_DIR = "valid"
+DATA_VALIDATION_INVALID_DIR = "invalid"
+DATA_VALIDATION_DRIFT_DIR = "drift"
+DATA_VALIDAITION_DRIFT_FILE = "drift.yaml"
