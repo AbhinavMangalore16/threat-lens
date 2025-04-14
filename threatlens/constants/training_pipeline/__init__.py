@@ -36,3 +36,18 @@ DATA_VALIDATION_VALID_DIR = "valid"
 DATA_VALIDATION_INVALID_DIR = "invalid"
 DATA_VALIDATION_DRIFT_DIR = "drift"
 DATA_VALIDAITION_DRIFT_FILE = "drift.yaml"
+
+"""
+====== Data Transformation constants ======
+
+"""
+
+DATA_TRANSFORM_DIR_NAME = "data_transform"
+DATA_TRANSFORM_TRANSFORMED_DATA_DIR = "transformed_data"
+DATA_TRANSFORM_TRANSFORMED_OBJECT_DIR = "transformed_object"
+
+DATA_TRANSFORM_IMPUTER_PARAMETERS = {
+    "missing_values": np.nan,
+    "n_neighbors": 5,
+    "weights": "uniform",
+}
