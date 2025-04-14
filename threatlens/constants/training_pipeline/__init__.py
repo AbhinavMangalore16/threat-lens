@@ -45,7 +45,7 @@ DATA_VALIDAITION_DRIFT_FILE = "drift.yaml"
 DATA_TRANSFORM_DIR_NAME = "data_transform"
 DATA_TRANSFORM_TRANSFORMED_DATA_DIR = "transformed_data"
 DATA_TRANSFORM_TRANSFORMED_OBJECT_DIR = "transformed_object"
-
+PREPROCESSING_OBJECT_FILE_NAME = "preprocessor.pkl"
 DATA_TRANSFORM_IMPUTER_PARAMETERS = {
     "missing_values": np.nan,
     "n_neighbors": 5,
