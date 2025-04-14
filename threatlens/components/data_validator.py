@@ -43,6 +43,18 @@ class DataValidator:
             return False            
         except Exception as e:
             raise ThreatLensException(e, sys)
+    
+    def validate_numeric_schema(self, df: pd.DataFrame) -> bool:
+        try:
+            numeric_columns = self._schema_config.get("numeric", [])
+            missing_cols  = [col for col in numeric_columns if col not in df.columns]
+            if missing_cols:
+                logging.error(f"Missing numeric columns: {missing_cols}")
+                return False
+            logging.info("All required numeric columns present.")
+            return True            
+        except Exception as e:
+            raise ThreatLensException(e, sys)
 
     def init_data_valid(self) -> DataValidationArtifact:
         try:
@@ -50,6 +62,15 @@ class DataValidator:
             test_file_path = self.data_ingestion_artifact.test_file_path
             train_df = DataValidator.read_data(train_file_path)
             test_df = DataValidator.read_data(test_file_path)
+            status1 = self.validate_data_schema(train_df) and self.validate_numeric_schema(train_df)
+            status2 = self.validate_data_schema(test_df) and self.validatie_numeric_schema(test_df)
+            if not status1:
+                error_msg = f"Schema validation failed. Expected {len(self._schema_config)} columns, but got {len(train_df.columns)} columns."
+                logging.error(error_msg)
+            if not status2:
+                error_msg = f"Schema validation failed. Expected {len(self._schema_config)} columns, but got {len(test_df.columns)} columns."
+                logging.error(error_msg)
+
         except Exception as e:
             raise ThreatLensException(e, sys)
 
