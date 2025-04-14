@@ -3,6 +3,15 @@ import sys
 import numpy as np
 import pandas as pd
 
+TARGET_COLUMN = "CLASS_LABEL"
+PIPELINE_NAME = "threat_lens"
+ARTIFACT_DIR = "artifacts"
+FILE_NAME = "phishing.csv"
+
+TRAIN_FILE_NAME = "train_data.csv"
+TEST_FILE_NAME = "test_data.csv"
+FILE_SCHEMA_PATH = os.path.join("schema", "data_schema.yaml")
+
 """
 ====== Data Ingestion constants ======
 
@@ -16,13 +25,6 @@ DATA_INGESTION_INGESTED_DIR = "ingested"
 DATA_INGESTION_TRAIN_TEST_SPLIT_RATIO = 0.25
 
 
-TARGET_COLUMN = "CLASS_LABEL"
-PIPELINE_NAME = "threat_lens"
-ARTIFACT_DIR = "artifacts"
-FILE_NAME = "phishing.csv"
-
-TRAIN_FILE_NAME = "train_data.csv"
-TEST_FILE_NAME = "test_data.csv"
 
 """
 ====== Data Validation constants ======
