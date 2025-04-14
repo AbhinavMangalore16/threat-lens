@@ -14,14 +14,15 @@ from threatlens.logging.logger import logger
 import certifi
 
 load_dotenv()
-CA = certifi.where()
+uri = os.getenv("MONGO_DB_URI")
+CA = certifi.where() 
 MONGO_USERNAME = quote_plus(os.getenv("MONGO_USERNAME"))
 MONGO_PASSWORD = quote_plus(os.getenv("MONGO_PASSWORD"))
 if not MONGO_USERNAME or not MONGO_PASSWORD:
     raise ValueError("MongoDB credentials are not set in the .env file.")
 
 
-uri = os.getenv("MONGO_DB_URI")
+
 
 class Extract():
     def __init__(self):
