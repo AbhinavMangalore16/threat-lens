@@ -68,6 +68,8 @@ class DataTransformation:
             save_numpy(file_path=self.data_transformation_config.transform_train_file_path, array=train_arr)
             save_numpy(file_path=self.data_transformation_config.transform_test_file_path, array=test_arr)
 
+            save_pickle("production/preprocessor.pkl", preprocessor_obj)
+
             data_transform_artifact = DataTransformArtifact(
                 transform_object_file_path=self.data_transformation_config.transform_object_file_path,
                 transform_train_file_path=self.data_transformation_config.transform_train_file_path,

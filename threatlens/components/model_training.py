@@ -143,6 +143,8 @@ class ModelTraining:
             threatlens_model = ThreatLensModel(preprocessor=preprocessor, model=best_model)
             save_pickle(self.model_training_config.model_trained_file_path, threatlens_model)
 
+            save_pickle("production/phishing_prod_model.pkl", best_model)
+
             model_training_artifact = ModelTrainingArtifact(
                 trained_model_file_path=self.model_training_config.model_trained_file_path,
                 training_metric_artifact=clf_train_metric,
