@@ -11,6 +11,7 @@ FILE_NAME :str= "phishing.csv"
 TRAIN_FILE_NAME :str= "train_data.csv"
 TEST_FILE_NAME :str= "test_data.csv"
 FILE_SCHEMA_PATH :str= os.path.join("schema", "data_schema.yaml")
+MODEL_FOLDER_NAME :str=os.path.join("models_phishing")
 
 """
 ====== Data Ingestion constants ======

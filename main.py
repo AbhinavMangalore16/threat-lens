@@ -1,10 +1,11 @@
 from threatlens.components.data_ingestion import DataIngestion
 from threatlens.components.data_validator import DataValidator
 from threatlens.components.data_transform import DataTransformation
+from threatlens.components.model_training import ModelTraining
 from threatlens.logging.logger import logging
 from threatlens.exception.exception import ThreatLensException
 from threatlens.entity.config_entity import TrainingPipelineConfig
-from threatlens.entity.config_entity import DataIngestionConfig, DataValidationConfig, DataTransformationConfig
+from threatlens.entity.config_entity import DataIngestionConfig, DataValidationConfig, DataTransformationConfig, ModelTrainingConfig
 
 import sys
 
@@ -33,6 +34,13 @@ if __name__ == '__main__':
         data_transformation_artifact = data_transformation.init_data_transform()
         logging.info("STAGE III E: Data Transformation completed successfully..")
         print("STAGE III E: Data Transformation completed successfully..")
+        logging.info("STAGE IV P: Initiating Model Training..")
+        print("STAGE IV P: Initiating Model Training..")
+        model_training_config = ModelTrainingConfig(training_pipeline_config=training_pipeline_config)
+        model_training = ModelTraining(data_transform_artifact=data_transformation_artifact, model_training_config=model_training_config)
+        model_training_artifact = model_training.init_model_training()
+        logging.info("STAGE IV E: Model Training completed successfully..")
+        print("STAGE IV E: Model Training completed successfully..")
         logging.info("Partial Pipeline completed successfully.")
         print("Partial Pipeline completed successfully.")
     except ThreatLensException as e:

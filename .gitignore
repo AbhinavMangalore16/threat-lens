@@ -174,3 +174,5 @@ cython_debug/
 artifacts
 artifacts/
 *artifacts/
+
+out/linecounter.json
