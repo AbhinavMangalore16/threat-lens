@@ -11,6 +11,8 @@ import os
 import sys
 import logging
 import mlflow
+import dagshub
+dagshub.init(repo_owner='abhinavm16104', repo_name='threat-lens', mlflow=True)
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import AdaBoostClassifier, GradientBoostingClassifier, RandomForestClassifier
@@ -27,7 +29,7 @@ class ModelTraining:
             self.data_transform_artifact = data_transform_artifact
         except Exception as e:
             raise ThreatLensException(e, sys)
-    def mlflow_exptracking(self, best_model, clf_train_metric):
+    def mlflow_exptracking(self, best_model, clf_train_metric, clf_test_metric):
         try:
             logging.info("Starting MLflow experiment tracking")
             with mlflow.start_run():
@@ -35,21 +37,31 @@ class ModelTraining:
                 print("Logging model parameters")
                 logging.info(f"Model parameters for {best_model} ...")
                 print(f"Model parameters for {best_model} ...")
-                f1_score = clf_train_metric.f1_score
-                precision_score = clf_train_metric.precision_score
-                recall_score = clf_train_metric.recall_score
-                accuracy_score = clf_train_metric.accuracy_score
 
-                mlflow.log_metric("f1_score", f1_score)
-                mlflow.log_metric("precision_score", precision_score)
-                mlflow.log_metric("recall_score", recall_score)
-                mlflow.log_metric("accuracy_score", accuracy_score)
+                
+                mlflow.log_metrics({
+                    "train_f1_score": clf_train_metric.f1_score,
+                    "train_precision_score": clf_train_metric.precision_score,
+                    "train_recall_score": clf_train_metric.recall_score,
+                    "train_accuracy_score": clf_train_metric.accuracy_score
+                })
+
+                
+                mlflow.log_metrics({
+                    "test_f1_score": clf_test_metric.f1_score,
+                    "test_precision_score": clf_test_metric.precision_score,
+                    "test_recall_score": clf_test_metric.recall_score,
+                    "test_accuracy_score": clf_test_metric.accuracy_score
+                })
+
                 mlflow.sklearn.log_model(best_model, "model")
                 logging.info("Model parameters logged successfully")
                 print("Model parameters logged successfully")
-    
+
         except Exception as e:
             raise ThreatLensException(e, sys)
+    
+       
     def train_model(self, X_train, y_train, X_test, y_test):
         try:
             models = {
@@ -121,9 +133,9 @@ class ModelTraining:
             best_model = models[best_model_name]    
             y_train_pred = best_model.predict(X_train)
             clf_train_metric = get_clf_metrics(y_train, y_train_pred)
-            self.mlflow_exptracking(best_model, clf_train_metric)
             y_test_pred = best_model.predict(X_test)
             clf_test_metric = get_clf_metrics(y_test, y_test_pred)
+            self.mlflow_exptracking(best_model, clf_train_metric, clf_test_metric)
 
             preprocessor = load_pickle(self.data_transform_artifact.transform_object_file_path)
             model_dir_path = os.path.dirname(self.model_training_config.model_trained_file_path)
