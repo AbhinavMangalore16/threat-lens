@@ -23,11 +23,12 @@ class DataTransformArtifact:
 @dataclass
 class TrainingMetricArtifact:
     f1_score: float
-    precision_score: float
+    precision_score:float
     recall_score: float
-    
+    accuracy_score: float
+
 @dataclass
-class ModelTrainerArtifact:
-    trained_model_file_path: str
-    train_metric_artifact: TrainingMetricArtifact
-    test_metric_artifact: TrainingMetricArtifact
+class ModelTrainingArtifact:
+    trained_model_file_path : str
+    training_metric_artifact: TrainingMetricArtifact
+    testing_metric_artifact: TrainingMetricArtifact
