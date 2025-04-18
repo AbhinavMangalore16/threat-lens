@@ -10,6 +10,7 @@ from threatlens.utils.learning.metrics.evaluate_metrics import model_evaluation
 import os
 import sys
 import logging
+import mlflow
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import AdaBoostClassifier, GradientBoostingClassifier, RandomForestClassifier
@@ -26,96 +27,121 @@ class ModelTraining:
             self.data_transform_artifact = data_transform_artifact
         except Exception as e:
             raise ThreatLensException(e, sys)
+    def mlflow_exptracking(self, best_model, clf_train_metric):
+        try:
+            logging.info("Starting MLflow experiment tracking")
+            with mlflow.start_run():
+                logging.info("Logging model parameters")
+                print("Logging model parameters")
+                logging.info(f"Model parameters for {best_model} ...")
+                print(f"Model parameters for {best_model} ...")
+                f1_score = clf_train_metric.f1_score
+                precision_score = clf_train_metric.precision_score
+                recall_score = clf_train_metric.recall_score
+                accuracy_score = clf_train_metric.accuracy_score
+
+                mlflow.log_metric("f1_score", f1_score)
+                mlflow.log_metric("precision_score", precision_score)
+                mlflow.log_metric("recall_score", recall_score)
+                mlflow.log_metric("accuracy_score", accuracy_score)
+                mlflow.sklearn.log_model(best_model, "model")
+                logging.info("Model parameters logged successfully")
+                print("Model parameters logged successfully")
     
+        except Exception as e:
+            raise ThreatLensException(e, sys)
     def train_model(self, X_train, y_train, X_test, y_test):
-        models = {
-            "Logistic Regression": LogisticRegression(verbose=1),
-            "AdaBoost": AdaBoostClassifier(),
-            "Gradient Boosting": GradientBoostingClassifier(verbose=1),
-            "Random Forest": RandomForestClassifier(verbose=1),
-            "Decision Tree": DecisionTreeClassifier(),
-            "KNeighbors": KNeighborsClassifier(),
-            "XGBoost": xgb.XGBClassifier(verbose=1),
-            "LightGBM": lgb.LGBMClassifier(verbose=1)
-        }
-
-        parameters = {
-            "Logistic Regression": {
-                "penalty": ["l2"],
-                # "C": [0.01, 0.1, 1, 10],
-                # "solver": ["liblinear", "lbfgs"],
-                # "max_iter": [100, 200]
-            },
-            "AdaBoost": {
-                "n_estimators": [50, 100, 200],
-                # "learning_rate": [0.01, 0.1, 1]
-            },
-            "Gradient Boosting": {
-                "n_estimators": [100, 150],
-                # "learning_rate": [0.05, 0.1],
-                # "max_depth": [3, 5],
-                # "subsample": [0.8, 1.0]
-            },
-            "Random Forest": {
-                "n_estimators": [8,16,32,64,128],
-                # "max_depth": [None, 10, 20],
-                # "min_samples_split": [2, 5],
-                # "min_samples_leaf": [1, 2]
-            },
-            "Decision Tree": {
-                "criterion": ["gini", "entropy"],
-                # "max_depth": [None, 10, 20],
-                # "min_samples_split": [2, 5],
-                # "min_samples_leaf": [1, 2]
-            },
-            "KNeighbors": {
-                "n_neighbors": [3, 5, 7],
-                # "weights": ["uniform", "distance"],
-                # "algorithm": ["auto", "ball_tree", "kd_tree"]
-            },
-            "XGBoost": {
-                "n_estimators": [100, 200],
-                # "max_depth": [3, 5],
-                # "learning_rate": [0.05, 0.1],
-                # "subsample": [0.8, 1.0],
-                # "colsample_bytree": [0.8, 1.0]
-            },
-            "LightGBM": {
-                "n_estimators": [100, 200],
-                # "max_depth": [3, 5],
-                # "learning_rate": [0.05, 0.1],
-                # "num_leaves": [31, 64],
-                # "boosting_type": ["gbdt", "dart"]
+        try:
+            models = {
+                "Logistic Regression": LogisticRegression(verbose=1),
+                "AdaBoost": AdaBoostClassifier(),
+                "Gradient Boosting": GradientBoostingClassifier(verbose=1),
+                "Random Forest": RandomForestClassifier(verbose=1),
+                "Decision Tree": DecisionTreeClassifier(),
+                "KNeighbors": KNeighborsClassifier(),
+                "XGBoost": xgb.XGBClassifier(verbose=1),
+                "LightGBM": lgb.LGBMClassifier(verbose=1)
             }
-        }
-        model_report:dict = model_evaluation(X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test, models=models, params=parameters, report_dir=self.model_training_config.model_training_report)
-        best_model_score = max(model_report.values(), key=lambda x: x['Test Accuracy'])
-        best_model_name = max(
-            model_report.items(),
-            key=lambda item: item[1]['Test Accuracy']
-        )[0]
-        best_model = models[best_model_name]    
-        y_train_pred = best_model.predict(X_train)
-        clf_train_metric = get_clf_metrics(y_train, y_train_pred)
-        self.mlflow_exptracking(best_model, clf_train_metric)
-        y_test_pred = best_model.predict(X_test)
-        clf_test_metric = get_clf_metrics(y_test, y_test_pred)
 
-        preprocessor = load_pickle(self.data_transform_artifact.transform_object_file_path)
-        model_dir_path = os.path.dirname(self.model_training_config.model_trained_file_path)
-        os.makedirs(model_dir_path, exist_ok = True)
-        threatlens_model = ThreatLensModel(preprocessor=preprocessor, model=best_model)
-        save_pickle(self.model_training_config.model_trained_file_path, threatlens_model)
+            parameters = {
+                "Logistic Regression": {
+                    "penalty": ["l2"],
+                    # "C": [0.01, 0.1, 1, 10],
+                    # "solver": ["liblinear", "lbfgs"],
+                    # "max_iter": [100, 200]
+                },
+                "AdaBoost": {
+                    "n_estimators": [50, 100, 200],
+                    # "learning_rate": [0.01, 0.1, 1]
+                },
+                "Gradient Boosting": {
+                    "n_estimators": [100, 150],
+                    # "learning_rate": [0.05, 0.1],
+                    # "max_depth": [3, 5],
+                    # "subsample": [0.8, 1.0]
+                },
+                "Random Forest": {
+                    "n_estimators": [8,16,32,64,128],
+                    # "max_depth": [None, 10, 20],
+                    # "min_samples_split": [2, 5],
+                    # "min_samples_leaf": [1, 2]
+                },
+                "Decision Tree": {
+                    "criterion": ["gini", "entropy"],
+                    # "max_depth": [None, 10, 20],
+                    # "min_samples_split": [2, 5],
+                    # "min_samples_leaf": [1, 2]
+                },
+                "KNeighbors": {
+                    "n_neighbors": [3, 5, 7],
+                    # "weights": ["uniform", "distance"],
+                    # "algorithm": ["auto", "ball_tree", "kd_tree"]
+                },
+                "XGBoost": {
+                    "n_estimators": [100, 200],
+                    # "max_depth": [3, 5],
+                    # "learning_rate": [0.05, 0.1],
+                    # "subsample": [0.8, 1.0],
+                    # "colsample_bytree": [0.8, 1.0]
+                },
+                "LightGBM": {
+                    "n_estimators": [100, 200],
+                    # "max_depth": [3, 5],
+                    # "learning_rate": [0.05, 0.1],
+                    # "num_leaves": [31, 64],
+                    # "boosting_type": ["gbdt", "dart"]
+                }
+            }
+            model_report:dict = model_evaluation(X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test, models=models, params=parameters, report_dir=self.model_training_config.model_training_report)
+            best_model_score = max(model_report.values(), key=lambda x: x['Test Accuracy'])
+            best_model_name = max(
+                model_report.items(),
+                key=lambda item: item[1]['Test Accuracy']
+            )[0]
+            best_model = models[best_model_name]    
+            y_train_pred = best_model.predict(X_train)
+            clf_train_metric = get_clf_metrics(y_train, y_train_pred)
+            self.mlflow_exptracking(best_model, clf_train_metric)
+            y_test_pred = best_model.predict(X_test)
+            clf_test_metric = get_clf_metrics(y_test, y_test_pred)
 
-        model_training_artifact = ModelTrainingArtifact(
-            trained_model_file_path=self.model_training_config.model_trained_file_path,
-            training_metric_artifact=clf_train_metric,
-            testing_metric_artifact=clf_test_metric,
-        )
-        logging.info(f"Model training artifact: {model_training_artifact}")
-        logging.info(f"Model training report: {model_report}")
-        logging.info(f"Best model name: {best_model_name}")
-        return model_training_artifact
+            preprocessor = load_pickle(self.data_transform_artifact.transform_object_file_path)
+            model_dir_path = os.path.dirname(self.model_training_config.model_trained_file_path)
+            os.makedirs(model_dir_path, exist_ok = True)
+            threatlens_model = ThreatLensModel(preprocessor=preprocessor, model=best_model)
+            save_pickle(self.model_training_config.model_trained_file_path, threatlens_model)
+
+            model_training_artifact = ModelTrainingArtifact(
+                trained_model_file_path=self.model_training_config.model_trained_file_path,
+                training_metric_artifact=clf_train_metric,
+                testing_metric_artifact=clf_test_metric,
+            )
+            logging.info(f"Model training artifact: {model_training_artifact}")
+            logging.info(f"Model training report: {model_report}")
+            logging.info(f"Best model name: {best_model_name}")
+            return model_training_artifact
+        except Exception as e:  
+            raise ThreatLensException(e, sys)
 
     def init_model_training(self) -> ModelTrainingArtifact:
         try:

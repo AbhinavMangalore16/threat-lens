@@ -177,3 +177,5 @@ artifacts/
 
 out/
 out/linecounter.json
+
+mlruns/
