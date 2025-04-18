@@ -26,12 +26,13 @@ class ModelTraining:
             self.data_transform_artifact = data_transform_artifact
         except Exception as e:
             raise ThreatLensException(e, sys)
+    
     def train_model(self, X_train, y_train, X_test, y_test):
         models = {
-            "Logistic Regression": LogisticRegression(),
+            "Logistic Regression": LogisticRegression(verbose=1),
             "AdaBoost": AdaBoostClassifier(),
-            "Gradient Boosting": GradientBoostingClassifier(),
-            "Random Forest": RandomForestClassifier(),
+            "Gradient Boosting": GradientBoostingClassifier(verbose=1),
+            "Random Forest": RandomForestClassifier(verbose=1),
             "Decision Tree": DecisionTreeClassifier(),
             "KNeighbors": KNeighborsClassifier(),
             "XGBoost": xgb.XGBClassifier(verbose=1),
@@ -96,6 +97,7 @@ class ModelTraining:
         best_model = models[best_model_name]    
         y_train_pred = best_model.predict(X_train)
         clf_train_metric = get_clf_metrics(y_train, y_train_pred)
+        self.mlflow_exptracking(best_model, clf_train_metric)
         y_test_pred = best_model.predict(X_test)
         clf_test_metric = get_clf_metrics(y_test, y_test_pred)
 

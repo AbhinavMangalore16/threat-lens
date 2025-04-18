@@ -175,4 +175,5 @@ artifacts
 artifacts/
 *artifacts/
 
+out/
 out/linecounter.json

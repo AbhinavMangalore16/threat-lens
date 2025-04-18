@@ -22,11 +22,13 @@ if __name__ == '__main__':
         data_ingestion_artifact = data_ingestion.init_data_ingestion()
         logging.info("STAGE I E: Data Ingestion completed succesfully..")
         print("STAGE I E: Data Ingestion completed succesfully..")
+
         logging.info("STAGE II P: Initiating Data Validation..")
         data_validation_config = DataValidationConfig(training_pipeline_config=training_pipeline_config)
         data_validation = DataValidator(data_ingestion_artifact=data_ingestion_artifact, data_validation_config=data_validation_config)      
         data_validation_artifact = data_validation.init_data_valid()
         logging.info("STAGE II E: Data Validation completed successfully..")
+
         logging.info("STAGE III P: Initiating Data Transformation..")
         print("STAGE III P: Initiating Data Transformation..")
         data_transforma_config = DataTransformationConfig(training_pipeline_config=training_pipeline_config)
@@ -34,6 +36,7 @@ if __name__ == '__main__':
         data_transformation_artifact = data_transformation.init_data_transform()
         logging.info("STAGE III E: Data Transformation completed successfully..")
         print("STAGE III E: Data Transformation completed successfully..")
+
         logging.info("STAGE IV P: Initiating Model Training..")
         print("STAGE IV P: Initiating Model Training..")
         model_training_config = ModelTrainingConfig(training_pipeline_config=training_pipeline_config)
@@ -41,6 +44,7 @@ if __name__ == '__main__':
         model_training_artifact = model_training.init_model_training()
         logging.info("STAGE IV E: Model Training completed successfully..")
         print("STAGE IV E: Model Training completed successfully..")
+        
         logging.info("Partial Pipeline completed successfully.")
         print("Partial Pipeline completed successfully.")
     except ThreatLensException as e:
