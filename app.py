@@ -4,19 +4,30 @@ import logging
 import certifi
 import pymongo
 from dotenv import load_dotenv
-
-from fastapi import FastAPI, Request
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, RedirectResponse
-from uvicorn import run as uvicorn_run
-from contextlib import asynccontextmanager
+load_dotenv()
 
 from threatlens.exception.exception import ThreatLensException
 from threatlens.logging.logger import logger
 from threatlens.pipeline.train_pipeline import TrainPipeline
-from threatlens.constants.training_pipeline import DATA_INGESTION_DB, DATA_INGESTION_COLLECTION
+from threatlens.utils.mains.utils import load_pickle
+from threatlens.constants.training_pipeline import DATA_INGESTION_COLLECTION, DATA_INGESTION_DB
+from threatlens.utils.learning.model.classifier import ThreatLensModel
 
-load_dotenv()
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi import FastAPI, File, UploadFile, Form, Request, Depends
+from uvicorn import run as uvicorn_run
+from fastapi.responses import HTMLResponse, JSONResponse, Response
+from fastapi.encoders import jsonable_encoder
+from starlette.responses import RedirectResponse
+from contextlib import asynccontextmanager
+from fastapi.templating import Jinja2Templates
+templates = Jinja2Templates(directory="temp_pred")
+
+
+
+import pandas as pd
+ca = certifi.where()
+MONGO_DB_URL = os.getenv("MONGO_DB_URI")
 
 
 @asynccontextmanager
@@ -70,6 +81,34 @@ async def train_model():
     except Exception as e:
         logger.exception("❌ Error during training pipeline execution.")
         raise ThreatLensException(e, sys)
+@app.post("/batch_predict", tags=["Batch Prediction"])
+async def batch_predict(request: Request, file: UploadFile = File(...), response_class: Response = HTMLResponse):
+    try:
+        df = pd.read_csv(file.file)
+        logger.info("⚙️ Batch prediction initiated.")
+        
+        preprocessor = load_pickle("production/preprocessor.pkl")
+        model = load_pickle("production/phishing_prod_model.pkl")
+        threatlens_model = ThreatLensModel(preprocessor=preprocessor, model=model)
+
+        y_pred = threatlens_model.predict(df)
+        df["prediction"] = y_pred
+
+        table = df.to_html(classes='table table-striped', index=False)
+        df.to_csv("predictions/predictions.csv", index=False)
+        if not os.path.exists('predictions'):
+            os.makedirs('predictions')
+        
+        # Save the HTML table content to a file in the 'predictions' folder
+        with open("predictions/table.html", "w") as f:
+            f.write(table)
+        logger.info("✅ Batch prediction completed successfully.")
+        return templates.TemplateResponse("table.html", {"request": request, "table": table})
+    
+    except Exception as e:
+        logger.exception("❌ Error during batch prediction.")
+        raise ThreatLensException(e, sys) from e
+
 
 
 if __name__ == "__main__":
