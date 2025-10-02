@@ -6,6 +6,8 @@ from threatlens.logging.logger import logging
 from threatlens.exception.exception import ThreatLensException
 from threatlens.entity.config_entity import TrainingPipelineConfig
 from threatlens.entity.config_entity import DataIngestionConfig, DataValidationConfig, DataTransformationConfig, ModelTrainingConfig
+from colorama import Fore, Style, init
+init(autoreset=True) 
 
 import sys
 
@@ -18,38 +20,43 @@ if __name__ == '__main__':
         data_ingestion = DataIngestion(data_ingestion_config)
 
         logging.info("STAGE I P: Initiating Data Ingestion..")
-        print("STAGE I P: Initiating Data Ingestion..")
+        print(Fore.CYAN + "STAGE I P: Initiating Data Ingestion..")
         data_ingestion_artifact = data_ingestion.init_data_ingestion()
         logging.info("STAGE I E: Data Ingestion completed succesfully..")
-        print("STAGE I E: Data Ingestion completed succesfully..")
-
+        print(Fore.GREEN +"STAGE I E: Data Ingestion completed succesfully..")
+        print()
         logging.info("STAGE II P: Initiating Data Validation..")
+        print(Fore.CYAN +"STAGE II P: Initiating Data Validation..")
         data_validation_config = DataValidationConfig(training_pipeline_config=training_pipeline_config)
         data_validation = DataValidator(data_ingestion_artifact=data_ingestion_artifact, data_validation_config=data_validation_config)      
         data_validation_artifact = data_validation.init_data_valid()
         logging.info("STAGE II E: Data Validation completed successfully..")
+        print(Fore.GREEN +"STAGE II E: Data Validation completed successfully..")
 
         logging.info("STAGE III P: Initiating Data Transformation..")
-        print("STAGE III P: Initiating Data Transformation..")
+        print(Fore.CYAN +"STAGE III P: Initiating Data Transformation..")
         data_transforma_config = DataTransformationConfig(training_pipeline_config=training_pipeline_config)
         data_transformation = DataTransformation(data_validation_artifact=data_validation_artifact, data_transformation_config=data_transforma_config)
         data_transformation_artifact = data_transformation.init_data_transform()
         logging.info("STAGE III E: Data Transformation completed successfully..")
-        print("STAGE III E: Data Transformation completed successfully..")
-
+        print(Fore.GREEN + "STAGE III E: Data Transformation completed successfully..")
+        print()
         logging.info("STAGE IV P: Initiating Model Training..")
-        print("STAGE IV P: Initiating Model Training..")
+        print(Fore.CYAN +"STAGE IV P: Initiating Model Training..")
         model_training_config = ModelTrainingConfig(training_pipeline_config=training_pipeline_config)
         model_training = ModelTraining(data_transform_artifact=data_transformation_artifact, model_training_config=model_training_config)
         model_training_artifact = model_training.init_model_training()
         logging.info("STAGE IV E: Model Training completed successfully..")
-        print("STAGE IV E: Model Training completed successfully..")
-        
-        logging.info("Partial Pipeline completed successfully.")
+        print(Fore.GREEN + "STAGE IV E: Model Training completed successfully..")
+        print()
+        logging.info(Fore.MAGENTA +"Partial Pipeline completed successfully.")
         print("Partial Pipeline completed successfully.")
     except ThreatLensException as e:
+        print(e)
+        print(Fore.RED + "Error: Something went wrong!")
         logging.error(e)
     except Exception as e:
+        print(e)
         logging.error(e)
         sys.exit(1)
     sys.exit(0)
