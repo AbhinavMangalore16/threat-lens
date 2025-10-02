@@ -21,14 +21,19 @@ from fastapi.encoders import jsonable_encoder
 from starlette.responses import RedirectResponse
 from contextlib import asynccontextmanager
 from fastapi.templating import Jinja2Templates
+from pydantic import BaseModel
+from typing import List, Dict, Any
 templates = Jinja2Templates(directory="temp_pred")
-
 
 
 import pandas as pd
 ca = certifi.where()
 MONGO_DB_URL = os.getenv("MONGO_DB_URI")
 
+class PredictRequest(BaseModel):
+    data: List[Dict[str, Any]]
+class PredictResponse(BaseModel):
+    predictions: List[Any]
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -109,7 +114,22 @@ async def batch_predict(request: Request, file: UploadFile = File(...), response
         logger.exception("❌ Error during batch prediction.")
         raise ThreatLensException(e, sys) from e
 
+@app.post("/predict", response_model=PredictResponse, tags=["Prediction"])
+async def predict(request: PredictRequest):
+    try:
+        logger.info("Initiation prediction pipeline....")
+        input_data = pd.DataFrame(request.data)
+        preprocessor = load_pickle("production/preprocessor.pkl")
+        model = load_pickle("production/phishing_prod_model.pkl")
+        threatlens_model = ThreatLensModel(preprocessor=preprocessor, model=model)
 
+        y_pred = threatlens_model.predict(input_data)
+        logger.info("✅ Prediction completed successfully.")
+        return PredictResponse(predictions=y_pred.tolist())
+    
+    except Exception as e:
+        logger.exception("❌ Error during prediction.")
+        raise ThreatLensException(e, sys) from e
 
 if __name__ == "__main__":
     uvicorn_run(app, host="localhost", port=8000)
