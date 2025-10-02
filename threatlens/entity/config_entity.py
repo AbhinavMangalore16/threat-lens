@@ -9,6 +9,7 @@ class TrainingPipelineConfig:
         self.pipeline_name :str= training_pipeline.PIPELINE_NAME
         self.artifact_name :str= training_pipeline.ARTIFACT_DIR
         self.artifact_dir :str= os.path.join(self.artifact_name, self.timestamp)
+        self.model_dir :str= os.path.join("production")
 
 
 class DataIngestionConfig:
