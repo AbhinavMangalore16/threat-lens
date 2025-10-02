@@ -179,3 +179,7 @@ out/
 out/linecounter.json
 
 mlruns/
+
+production/
+predictions/
+*.pkl
