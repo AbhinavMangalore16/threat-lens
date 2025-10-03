@@ -130,6 +130,10 @@ async def predict(request: PredictRequest):
     except Exception as e:
         logger.exception("❌ Error during prediction.")
         raise ThreatLensException(e, sys) from e
+    
+@app.get("/health", tags=["Health"])
+async def health_check():
+    return {"status": "ok"}
 
 if __name__ == "__main__":
     uvicorn_run(app, host="localhost", port=8000)
