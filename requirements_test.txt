@@ -9,3 +9,4 @@ pymongo
 certifi
 uvicorn
 gunicorn
+python-dotenv
