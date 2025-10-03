@@ -1,0 +1,7 @@
+pytest>=8.4.0
+flake8>=6.1.0
+httpx>=1.7.0       
+pytest-asyncio>=0.21.0 
+pandas 
+scikit-learn
+fastapi
