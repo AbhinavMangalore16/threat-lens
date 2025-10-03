@@ -18,8 +18,12 @@ DAGSHUB_USERNAME = os.getenv("DAGSHUB_USERNAME")
 DAGSHUB_PASSWORD = os.getenv("DAGSHUB_PASSWORD")
 MLFLOW_TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI")
 
-mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
-dagshub.init(repo_owner='abhinavm16104', repo_name='threat-lens', mlflow=True)
+try:
+    import dagshub
+    dagshub.auth.add_app_token(DAGSHUB_PASSWORD)
+    dagshub.init(repo_owner='abhinavm16104', repo_name='threat-lens', mlflow=True)
+except Exception as e:
+    print("Dagshub init skipped:", e)
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import AdaBoostClassifier, GradientBoostingClassifier, RandomForestClassifier
