@@ -5,3 +5,7 @@ pytest-asyncio
 pandas 
 scikit-learn
 fastapi
+pymongo
+certifi
+uvicorn
+gunicorn
