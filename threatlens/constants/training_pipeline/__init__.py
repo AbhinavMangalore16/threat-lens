@@ -64,3 +64,11 @@ MODEL_TRAINING_REPORT_DIR :str= "training_report"
 MODEL_TRAINING_REPORT_FILE_NAME :str= "phish_model_report.yaml"
 MODEL_TRAINING_ACCURACY_THRESHOLD :float= 0.7
 MODEL_TRAINING_OVERFITTING_UNDERFITTING_THRESHOLD :float = 0.05
+
+
+"""
+====== Cloud deployment constants ======
+
+"""
+
+TRAINING_BUCKET = "threatlens-ml"

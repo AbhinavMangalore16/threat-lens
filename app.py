@@ -125,7 +125,7 @@ async def predict(request: PredictRequest):
 
         y_pred = threatlens_model.predict(input_data)
         logger.info("✅ Prediction completed successfully.")
-        return PredictResponse(predictions=y_pred.tolist())
+        return PredictResponse(predictions=list(y_pred))
     
     except Exception as e:
         logger.exception("❌ Error during prediction.")

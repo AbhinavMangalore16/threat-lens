@@ -1,0 +1,19 @@
+name: Threatlens CI/CD workflow
+
+on:
+  push:
+    branches: 
+      - main
+      - deploy/aws-s3-ec2 
+    paths-ignore:
+      - README.md
+
+jobs: 
+  integration:
+    name: Continuous Integration
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Lint code 
+        run: echo "Linting code <sample>"

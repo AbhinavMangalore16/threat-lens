@@ -8,6 +8,9 @@ from threatlens.exception.exception import ThreatLensException
 from threatlens.entity.config_entity import DataIngestionConfig, DataValidationConfig, DataTransformationConfig, ModelTrainingConfig, TrainingPipelineConfig
 from threatlens.entity.artifact_entity import DataIngestionArtifact, DataValidationArtifact, DataTransformArtifact, ModelTrainingArtifact
 
+from threatlens.constants.training_pipeline import TRAINING_BUCKET
+from threatlens.cloud.s3_sync import S3Syncing
+
 import os
 import sys
 import logging 
@@ -16,6 +19,7 @@ class TrainPipeline:
     def __init__(self):
         try:
             self.training_pipeline_config = TrainingPipelineConfig()
+            self.s3_sync = S3Syncing()
         except Exception as e:
             raise ThreatLensException(e, sys) from e
 
@@ -84,10 +88,24 @@ class TrainPipeline:
             data_validation_artifact = self.initialize_data_validation(data_ingestion_artifact=data_ingestion_artifact)
             data_transform_artifact = self.initialize_data_transformation(data_validation_artifact=data_validation_artifact)
             model_training_artifact = self.initialize_model_training(data_transform_artifact=data_transform_artifact)
+            self.syncing_artifact_TO_s3()
+            self.syncing_model_TO_s3()
             logging.info("Threatlens Training Pipeline completed successfully.")
             print("Threatlens Training Pipeline completed successfully.")
             return model_training_artifact
         except Exception as e:
             raise ThreatLensException(e, sys) from e
-
+        
+    def syncing_artifact_TO_s3(self):
+        try:
+            AWS_BUCKET_URL = f"s3://{TRAINING_BUCKET}/artifacts/{self.training_pipeline_config.timestamp}"
+            self.s3_sync.syncing_TO_s3(folder_name=self.training_pipeline_config.artifact_dir, bucket_url=AWS_BUCKET_URL)
+        except Exception as e:
+            raise ThreatLensException(e, sys) from e
+    def syncing_model_TO_s3(self):
+        try:
+            AWS_BUCKET_URL = f"s3://{TRAINING_BUCKET}/production/{self.training_pipeline_config.timestamp}"
+            self.s3_sync.syncing_TO_s3(folder_name=self.training_pipeline_config.model_dir, bucket_url=AWS_BUCKET_URL)  
+        except Exception as e:
+            raise ThreatLensException(e, sys) from e
 
