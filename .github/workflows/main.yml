@@ -30,4 +30,6 @@ jobs:
         run: flake8 . || echo "Lint warnings found, fix before next release"
 
       - name: Run unit tests
-        run: pytest -v || echo "Some tests failed, fix before next release"
+        run: |
+          export PYTHONPATH=$(pwd)
+          pytest -v || echo "Some tests failed, fix before next release"
