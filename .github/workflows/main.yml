@@ -4,6 +4,7 @@ on:
     push:
         branches: 
             - main
+            - deploy/aws-s3-ec2 
         paths-ignore:
             - README.md
 
