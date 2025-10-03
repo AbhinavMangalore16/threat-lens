@@ -17,7 +17,7 @@ jobs:
               uses: actions/checkout@v3
             
             - name: Lint code
-              uses: echo "Linting code..."
+              run: echo "Linting code..."
             
             - name: Run unit tests
-              uses: echo "Running unit tests..."
+              run: echo "Running unit tests..."
