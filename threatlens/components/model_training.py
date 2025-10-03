@@ -12,6 +12,13 @@ import sys
 import logging
 import mlflow
 import dagshub
+from dotenv import load_dotenv
+load_dotenv() 
+DAGSHUB_USERNAME = os.getenv("DAGSHUB_USERNAME")
+DAGSHUB_PASSWORD = os.getenv("DAGSHUB_PASSWORD")
+MLFLOW_TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI")
+
+mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
 dagshub.init(repo_owner='abhinavm16104', repo_name='threat-lens', mlflow=True)
 
 from sklearn.linear_model import LogisticRegression
