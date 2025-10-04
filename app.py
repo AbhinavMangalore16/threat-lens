@@ -3,6 +3,8 @@ import sys
 import logging
 import certifi
 import pymongo
+import boto3
+import pickle
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -29,6 +31,10 @@ templates = Jinja2Templates(directory="temp_pred")
 import pandas as pd
 ca = certifi.where()
 MONGO_DB_URL = os.getenv("MONGO_DB_URI")
+AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
+AWS_REGION = os.getenv("AWS_REGION")
+BUCKET_NAME = os.getenv("BUCKET_NAME")
 
 class PredictRequest(BaseModel):
     data: List[Dict[str, Any]]
@@ -68,6 +74,26 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+s3_client = boto3.client(
+    "s3",
+    aws_access_key_id = AWS_ACCESS_KEY_ID,
+    aws_secret_access_key = AWS_SECRET_ACCESS_KEY,
+    region_name = AWS_REGION
+)
+
+prefix = "production/"
+response = s3_client.list_objects_v2(Bucket=BUCKET_NAME, Prefix=prefix, Delimiter='/')
+folders = [f['Prefix'] for f in response.get('CommonPrefixes', [])]
+latest_folder = sorted(folders)[-1]  # assuming timestamped names sort correctly
+print("Latest folder:", latest_folder)
+def load_files_from_s3(s3_key: str):
+    try:
+        res = s3_client.get_object(Bucket = BUCKET_NAME, Key = s3_key)
+        obj = pickle.load(res['Body'])
+        return obj
+    except Exception as e:
+        raise RuntimeError(f"Error loading: {e}")
 
 
 @app.get("/", tags=["Navigation"])
@@ -119,8 +145,8 @@ async def predict(request: PredictRequest):
     try:
         logger.info("Initiation prediction pipeline....")
         input_data = pd.DataFrame(request.data)
-        preprocessor = load_pickle("production/preprocessor.pkl")
-        model = load_pickle("production/phishing_prod_model.pkl")
+        preprocessor = load_files_from_s3(f"{latest_folder}preprocessor.pkl")
+        model = load_files_from_s3(f"{latest_folder}phishing_prod_model.pkl")
         threatlens_model = ThreatLensModel(preprocessor=preprocessor, model=model)
 
         y_pred = threatlens_model.predict(input_data)
